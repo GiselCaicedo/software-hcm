@@ -2,7 +2,6 @@
 import { useAuthStore } from "@/stores/authStore";
 import { MOCK_KPIS, MOCK_AVANCE_POR_AREA } from "@/lib/mock-data/analytics";
 import { MOCK_EVALUACIONES } from "@/lib/mock-data/evaluaciones";
-import { getUserById } from "@/lib/mock-data/users";
 import { WORKFLOW_LABELS, getStatusColor } from "@/lib/utils/workflow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +20,7 @@ export default function DashboardPage() {
 
   const activeEval = MOCK_EVALUACIONES.find((e) => e.estado !== "cerrada");
   const myResults = activeEval?.participantes.find((r) => r.usuarioId === currentUser?.id);
+  const myEvalUrl = activeEval && currentUser ? `/evaluaciones/${activeEval.id}/participantes/${currentUser.id}` : "/evaluaciones";
 
   const greetingName = currentUser?.nombre.split(" ")[0] ?? "Usuario";
 
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                   <span className="font-semibold">{myResults.puntajeObjetivos}/5</span>
                 </div>
               )}
-              <ButtonLink href={`/evaluaciones/${activeEval.id}/autocalificacion`} size="sm" className="w-full mt-2">Ir a mi evaluación</ButtonLink>
+              <ButtonLink href={myEvalUrl} size="sm" className="w-full mt-2">Ir a mi evaluación</ButtonLink>
             </CardContent>
           </Card>
         )}
@@ -202,7 +202,9 @@ export default function DashboardPage() {
             {MOCK_EVALUACIONES.slice(0, 3).map((ev) => (
               <Link
                 key={ev.id}
-                href={`/evaluaciones/${ev.id}`}
+                href={activeRole === "evaluado" && currentUser && ev.participantes.some((item) => item.usuarioId === currentUser.id)
+                  ? `/evaluaciones/${ev.id}/participantes/${currentUser.id}`
+                  : `/evaluaciones/${ev.id}`}
                 className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
               >
                 <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">

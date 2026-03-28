@@ -181,11 +181,13 @@ export type EstadoEvaluacion =
   | "cerrada";
 
 export type TipoEvaluacion = "90" | "180" | "360";
+export type PeriodoEvaluacion = "anual" | "semestral" | "trimestral";
 
 export interface CicloEvaluacion {
   id: string;
   nombre: string;
   tipo: TipoEvaluacion;
+  periodo: PeriodoEvaluacion;
   anio: number;
   fechaInicio: string;
   fechaFin: string;

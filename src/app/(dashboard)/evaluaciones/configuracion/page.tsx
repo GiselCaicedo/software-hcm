@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 export default function ConfiguracionEvaluacionPage() {
   const [nombre, setNombre] = useState("Evaluación Anual 2026");
   const [tipo, setTipo] = useState("360");
+  const [periodo, setPeriodo] = useState("anual");
   const [fechaInicio, setFechaInicio] = useState("2027-01-15");
   const [fechaFin, setFechaFin] = useState("2027-03-31");
   const [participantes, setParticipantes] = useState<string[]>(["u4", "u5", "u6"]);
@@ -67,7 +68,7 @@ export default function ConfiguracionEvaluacionPage() {
             </div>
             <div className="space-y-2">
               <Label>Período</Label>
-              <Select defaultValue="anual">
+              <Select value={periodo} onValueChange={(v) => v && setPeriodo(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="anual">Anual</SelectItem>

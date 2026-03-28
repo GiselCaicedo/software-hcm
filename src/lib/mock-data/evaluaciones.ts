@@ -1,4 +1,5 @@
-import { CicloEvaluacion } from "@/types";
+import { CicloEvaluacion, EvaluacionParticipante, EstadoEvaluacion, PeriodoEvaluacion } from "@/types";
+import { getUserById } from "@/lib/mock-data/users";
 
 // Los objetivos ya NO son una colección global con evaluadoId.
 // Cada EvaluacionParticipante dentro del ciclo tiene sus propios objetivos,
@@ -13,6 +14,7 @@ export const MOCK_EVALUACIONES: CicloEvaluacion[] = [
     id: "e1",
     nombre: "Evaluación Anual 2025",
     tipo: "360",
+    periodo: "anual",
     anio: 2025,
     fechaInicio: "2026-01-15",
     fechaFin: "2026-03-31",
@@ -386,6 +388,7 @@ export const MOCK_EVALUACIONES: CicloEvaluacion[] = [
     id: "e2",
     nombre: "Evaluación Semestral I-2025",
     tipo: "180",
+    periodo: "semestral",
     anio: 2025,
     fechaInicio: "2025-07-01",
     fechaFin: "2025-08-15",
@@ -463,6 +466,7 @@ export const MOCK_EVALUACIONES: CicloEvaluacion[] = [
     id: "e3",
     nombre: "Evaluación Anual 2024",
     tipo: "360",
+    periodo: "anual",
     anio: 2024,
     fechaInicio: "2025-01-15",
     fechaFin: "2025-03-31",
@@ -495,4 +499,45 @@ export const WORKFLOW_STATES = [
 export function getEvaluacionParticipante(cicloId: string, usuarioId: string) {
   const ciclo = MOCK_EVALUACIONES.find((e) => e.id === cicloId);
   return ciclo?.participantes.find((p) => p.usuarioId === usuarioId) ?? null;
+}
+
+export interface EvaluacionIndividual {
+  cicloId: string;
+  cicloNombre: string;
+  cicloPeriodo: PeriodoEvaluacion;
+  cicloTipo: CicloEvaluacion["tipo"];
+  cicloAnio: number;
+  cicloEstado: EstadoEvaluacion;
+  fechaInicio: string;
+  fechaFin: string;
+  usuarioId: string;
+  participante: EvaluacionParticipante;
+}
+
+export function getEvaluacionesIndividuales(): EvaluacionIndividual[] {
+  return MOCK_EVALUACIONES.flatMap((ciclo) =>
+    ciclo.participantes.map((participante) => ({
+      cicloId: ciclo.id,
+      cicloNombre: ciclo.nombre,
+      cicloPeriodo: ciclo.periodo,
+      cicloTipo: ciclo.tipo,
+      cicloAnio: ciclo.anio,
+      cicloEstado: ciclo.estado,
+      fechaInicio: ciclo.fechaInicio,
+      fechaFin: ciclo.fechaFin,
+      usuarioId: participante.usuarioId,
+      participante,
+    }))
+  );
+}
+
+export function getEvaluacionesIndividualesPorRol(userId?: string, role?: string | null): EvaluacionIndividual[] {
+  const evaluaciones = getEvaluacionesIndividuales();
+
+  if (!userId || !role) return evaluaciones;
+  if (role === "evaluado") return evaluaciones.filter((item) => item.usuarioId === userId);
+  if (role === "lider") {
+    return evaluaciones.filter((item) => getUserById(item.usuarioId)?.liderId === userId);
+  }
+  return evaluaciones;
 }

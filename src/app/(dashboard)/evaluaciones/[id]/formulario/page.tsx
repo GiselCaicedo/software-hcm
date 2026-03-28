@@ -1,6 +1,7 @@
 "use client";
 import { use, useState, useCallback } from "react";
-import { MOCK_EVALUACIONES } from "@/lib/mock-data/evaluaciones";
+import { useSearchParams } from "next/navigation";
+import { getEvaluacionParticipante, MOCK_EVALUACIONES } from "@/lib/mock-data/evaluaciones";
 import { MOCK_COMPETENCIAS, getCompetenciasPorNivel, getComportamientosPorNivel } from "@/lib/mock-data/competencias";
 import { getUserById } from "@/lib/mock-data/users";
 import { useAuthStore } from "@/stores/authStore";
@@ -118,13 +119,19 @@ export default function FormularioEvaluacionPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const searchParams = useSearchParams();
   const { currentUser, activeRole } = useAuthStore();
 
   const ev = MOCK_EVALUACIONES.find((e) => e.id === id);
+  const usuarioIdParam = searchParams.get("usuarioId");
 
   // Para demo: el evaluado seleccionado (el primer participante)
   // En producción vendría del contexto del usuario actual o del parámetro de URL
-  const participanteDemo = ev?.participantes[0] ?? null;
+  const participanteDemo =
+    (usuarioIdParam ? getEvaluacionParticipante(id, usuarioIdParam) : null)
+    ?? (activeRole === "evaluado" && currentUser ? getEvaluacionParticipante(id, currentUser.id) : null)
+    ?? ev?.participantes[0]
+    ?? null;
   const evaluadoId = participanteDemo?.usuarioId ?? "";
   const evaluadoUser = getUserById(evaluadoId);
   const liderUser = evaluadoUser?.liderId ? getUserById(evaluadoUser.liderId) : null;
@@ -245,13 +252,13 @@ export default function FormularioEvaluacionPage({
       {/* ── Encabezado de página ── */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <ButtonLink href={`/evaluaciones/${id}`} variant="ghost" size="sm">
+          <ButtonLink href={`/evaluaciones/${id}/participantes/${evaluadoId}`} variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4" />
           </ButtonLink>
           <div>
             <h1 className="text-lg font-semibold text-gray-900">{ev.nombre}</h1>
             <p className="text-xs text-gray-400 mt-0.5">
-              Nivel {nivel} · Período {ev.anio}
+              {evaluadoUser.nombre} · Nivel {nivel} · Período {ev.anio}
             </p>
           </div>
         </div>

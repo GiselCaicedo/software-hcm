@@ -20,6 +20,10 @@ export interface Evaluacion {
   calificacion: number;
   progreso: number;
   cicloId: string;
+  lider?: User;
+  pares?: User[];
+  evaluacionesActivas?: number;
+  fecha?: string;
 }
 
 export interface Ciclo {

@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useAuthStore } from "@/stores/authStore";
 import { useUIStore } from "@/stores/uiStore";
 import { cn } from "@/lib/utils";
 
@@ -16,13 +15,12 @@ const HEADER_NAV = [
 ];
 
 export function TopBar() {
-  const user           = useAuthStore((s) => s.user);
   const pathname       = usePathname();
   const calendarOpen   = useUIStore((s) => s.calendarOpen);
   const toggleCalendar = useUIStore((s) => s.toggleCalendar);
 
   return (
-    <header className="h-14 flex items-center w-full relative">
+    <header className={cn("h-14 flex items-center w-full relative transition-[padding] duration-300", calendarOpen ? "pr-[340px]" : "")}>
       {/* Logo */}
       <div className="flex items-center pl-5 flex-shrink-0">
         <Image
@@ -57,30 +55,14 @@ export function TopBar() {
         })}
       </nav>
 
-      {/* Right — identidad de usuario + toggle calendario */}
-      <div className="flex items-center gap-2 pr-5 pl-4 self-stretch">
-        <div className="min-w-0 mr-1 text-right">
-          <p className="text-[12px] font-semibold text-[#1A1A1A] leading-tight truncate">
-            {user?.name || "Sindy Caicedo"}
-          </p>
-          <p className="text-[10px] text-[#6B6B6B] leading-tight truncate">
-            {user?.cargo || "HR Manager"}
-          </p>
-        </div>
-        <div className="w-8 h-8 rounded-full ring-[1.5px] ring-black/12 shadow-sm cursor-pointer ml-0.5 flex-shrink-0 bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
-          {user?.name?.charAt(0) || "U"}
-        </div>
-
-        {/* Separador + flecha calendario */}
-        <div className="w-px h-5 bg-black/10 mx-1" />
+      {/* Right — solo botón toggle calendario */}
+      <div className="flex items-center pr-5 pl-4 self-stretch">
         <button
           onClick={toggleCalendar}
           title={calendarOpen ? "Cerrar calendario" : "Abrir calendario"}
           className={cn(
             "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 text-[#555] hover:bg-black/5",
-            calendarOpen
-              ? "bg-[#1C1C1E] text-white hover:bg-[#1C1C1E]"
-              : ""
+            calendarOpen ? "bg-[#1C1C1E] text-white hover:bg-[#1C1C1E]" : ""
           )}
         >
           {calendarOpen ? (

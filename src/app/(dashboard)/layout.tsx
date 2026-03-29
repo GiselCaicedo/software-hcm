@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <main
           className={cn(
             "flex-1 ml-20 min-h-0 flex flex-col transition-[margin] duration-300",
-            calendarOpen ? "mr-[360px]" : "mr-0"
+            calendarOpen ? "mr-[340px]" : "mr-0"
           )}
         >
           {children}

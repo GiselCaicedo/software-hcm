@@ -2,134 +2,151 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
-import { MOCK_USERS } from "@/lib/mock-data/users";
-import { Role } from "@/types";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Users } from "lucide-react";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-
-const ROLE_LABELS: Record<Role, string> = {
-  admin: "Administrador",
-  th: "Talento Humano",
-  lider: "Líder",
-  evaluado: "Evaluado",
-};
-
-const ROLE_COLORS: Record<Role, string> = {
-  admin: "bg-purple-100 text-purple-700 border-purple-200",
-  th: "bg-blue-100 text-blue-700 border-blue-200",
-  lider: "bg-amber-100 text-amber-700 border-amber-200",
-  evaluado: "bg-green-100 text-green-700 border-green-200",
-};
+import { Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
-  const { login } = useAuthStore();
+  const [email, setEmail] = useState("admin@inmov.com");
+  const [password, setPassword] = useState("admin");
+  const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState("");
+  const login = useAuthStore((s) => s.login);
   const router = useRouter();
 
-  const handleLogin = () => {
-    if (!selectedUser) {
-      toast.error("Selecciona un usuario");
-      return;
-    }
-    login(selectedUser);
-    router.push("/dashboard");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const ok = login(email, password);
+    if (ok) router.push("/dashboard");
+    else setError("Credenciales incorrectas");
   };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900">
-      {/* Left panel */}
-      <div className="hidden lg:flex w-1/2 flex-col items-center justify-center p-12 relative">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-blue-600/10 blur-3xl" />
-          <div className="absolute bottom-1/3 right-1/4 h-48 w-48 rounded-full bg-indigo-600/10 blur-3xl" />
-        </div>
-        <div className="relative z-10 text-center max-w-sm">
-          <div className="flex justify-center mb-6">
-            <div className="h-16 w-16 rounded-2xl bg-blue-600 flex items-center justify-center">
-              <Building2 className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-[#F0EFE9] flex">
+      {/* Left — decorative */}
+      <div className="hidden lg:flex flex-1 relative overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0"
+          style={{ background: "linear-gradient(135deg, #FF6A1A 0%, #FF4500 35%, #C03000 65%, #6B0080 100%)" }} />
+
+        {/* Dot pattern */}
+        <div className="absolute inset-0 opacity-[0.15]"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)`,
+            backgroundSize: "28px 28px",
+          }}
+        />
+
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <span className="text-white font-black text-xs">IN</span>
             </div>
+            <span className="text-white font-bold tracking-widest text-sm">INMOV</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-3">INMOV</h1>
-          <p className="text-blue-200 text-lg font-medium mb-4">Sistema de Evaluación de Desempeño</p>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Gestiona evaluaciones 90°, 180° y 360°, competencias por nivel jerárquico,
-            firmas digitales con validez legal y planes de desarrollo con IA.
-          </p>
-          <div className="mt-8 flex flex-col gap-3">
-            {["Evaluaciones con IA generativa", "Firmas digitales Ley 527/1999", "9-Box Grid y Analytics", "Compliance Decreto 1373"].map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm text-blue-200">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
-                {f}
-              </div>
-            ))}
+
+          {/* Headline */}
+          <div>
+            <h1 className="text-white text-6xl font-black uppercase leading-none tracking-tight mb-4">
+              TRANSFORMA<br />EL TALENTO<br />DE TU<br />EQUIPO
+            </h1>
+            <p className="text-white/60 text-sm max-w-xs leading-relaxed">
+              Plataforma de evaluación de desempeño que impulsa el crecimiento organizacional.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
-          <div className="flex lg:hidden justify-center mb-6">
-            <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-white" />
+      {/* Right — form */}
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="w-full max-w-[380px]">
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-8 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-[#1C1C1E] flex items-center justify-center">
+              <span className="text-white font-black text-xs">IN</span>
             </div>
+            <span className="font-bold tracking-widest text-sm text-[#1A1A1A]">INMOV</span>
           </div>
 
-          <Card className="shadow-2xl border-0 bg-white">
-            <CardContent className="p-7">
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Acceder al sistema</h2>
-                <p className="text-sm text-gray-500 mt-1 flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5" />
-                  Selecciona un usuario demo para continuar
-                </p>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-[#1A1A1A] mb-1">Iniciar Sesión</h2>
+            <p className="text-sm text-[#6B6B6B]">Accede a tu plataforma de gestión del talento</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-[#6B6B6B] mb-1.5 uppercase tracking-wide">
+                Correo electrónico
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="hola@empresa.com"
+                className="w-full px-4 py-3 bg-white border border-[#E8E7E2] rounded-xl text-sm text-[#1A1A1A] placeholder:text-[#A0A0A0] focus:outline-none focus:border-[#1C1C1E] focus:ring-2 focus:ring-black/5 transition-all shadow-card"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#6B6B6B] mb-1.5 uppercase tracking-wide">
+                Contraseña
+              </label>
+              <div className="relative">
+                <input
+                  type={showPass ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-white border border-[#E8E7E2] rounded-xl text-sm text-[#1A1A1A] placeholder:text-[#A0A0A0] focus:outline-none focus:border-[#1C1C1E] focus:ring-2 focus:ring-black/5 transition-all shadow-card pr-10"
+                />
+                <button type="button" onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A0A0A0] hover:text-[#6B6B6B]">
+                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
+            </div>
 
-              {/* Lista de usuarios */}
-              <div className="space-y-2 mb-5 max-h-72 overflow-y-auto pr-1">
-                {MOCK_USERS.map((u) => (
-                  <button
-                    key={u.id}
-                    onClick={() => setSelectedUser(u.id)}
-                    className={cn(
-                      "w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
-                      selectedUser === u.id
-                        ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
-                        : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
-                    )}
-                  >
-                    <img src={u.avatar} alt={u.nombre} className="h-9 w-9 rounded-full bg-gray-100 shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-gray-800 truncate">{u.nombre}</p>
-                      <p className="text-xs text-gray-500 truncate">{u.cargo} · {u.departamento}</p>
-                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      {u.roles.map((r) => (
-                        <span key={r} className={cn("text-xs px-1.5 py-0.5 rounded border font-medium", ROLE_COLORS[r])}>
-                          {ROLE_LABELS[r]}
-                        </span>
-                      ))}
-                    </div>
-                  </button>
-                ))}
+            <div className="flex justify-end">
+              <button type="button" className="text-xs text-brand hover:underline font-medium">
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
+
+            {error && (
+              <div className="px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
+                {error}
               </div>
+            )}
 
-              <Button
-                onClick={handleLogin}
-                disabled={!selectedUser}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-              >
-                Ingresar
-              </Button>
+            <button type="submit"
+              className="w-full py-3 bg-[#1C1C1E] text-white rounded-xl text-sm font-semibold hover:bg-black transition-colors flex items-center justify-center gap-2 shadow-card-md">
+              Iniciar Sesión
+              <ArrowRight className="w-4 h-4" />
+            </button>
 
-              <p className="text-xs text-center text-gray-400 mt-4">
-                Sistema de demostración · INMOV 2026
-              </p>
-            </CardContent>
-          </Card>
+            <div className="relative flex items-center gap-3">
+              <div className="flex-1 h-px bg-[#E8E7E2]" />
+              <span className="text-xs text-[#A0A0A0]">o continúa con</span>
+              <div className="flex-1 h-px bg-[#E8E7E2]" />
+            </div>
+
+            <button type="button"
+              className="w-full py-3 bg-white border border-[#E8E7E2] rounded-xl text-sm text-[#1A1A1A] font-medium hover:bg-[#F7F6F2] transition-colors shadow-card">
+              SSO Empresarial
+            </button>
+          </form>
+
+          <p className="text-center text-xs text-[#A0A0A0] mt-6">
+            ¿No tienes cuenta?{" "}
+            <span className="text-[#1A1A1A] font-medium cursor-pointer hover:underline">
+              Contacta a tu administrador
+            </span>
+          </p>
+
+          {/* Demo hint */}
+          <div className="mt-6 p-3.5 bg-white border border-[#E8E7E2] rounded-xl shadow-card">
+            <p className="text-xs font-semibold text-[#6B6B6B] mb-1">Acceso demo:</p>
+            <p className="text-xs text-[#A0A0A0]">admin@inmov.com / admin</p>
+          </div>
         </div>
       </div>
     </div>

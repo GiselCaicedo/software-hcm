@@ -1,140 +1,95 @@
 "use client";
-import { MOCK_EVALUACIONES } from "@/lib/mock-data/evaluaciones";
-import { useAuthStore } from "@/stores/authStore";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ButtonLink } from "@/components/ui/button-link";
-import { Target, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { OBJETIVOS } from "@/lib/mock-data/objetivos";
+import { Plus, MoreHorizontal, ArrowUpRight, Target, TrendingUp, CheckCircle, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ObjetivoEvaluado } from "@/types";
 
-const ESTADO_CONFIG = {
-  completado:  { label: "Completado",  icon: CheckCircle2, color: "text-green-600",  bg: "bg-green-50",  badge: "bg-green-100 text-green-700" },
-  en_progreso: { label: "En progreso", icon: Clock,         color: "text-blue-600",   bg: "bg-blue-50",   badge: "bg-blue-100 text-blue-700" },
-  pendiente:   { label: "Pendiente",   icon: AlertCircle,  color: "text-amber-600",  bg: "bg-amber-50",  badge: "bg-amber-100 text-amber-700" },
-  cancelado:   { label: "Cancelado",   icon: AlertCircle,  color: "text-gray-400",   bg: "bg-gray-50",   badge: "bg-gray-100 text-gray-500" },
+const STATUS_STYLES: Record<string, string> = {
+  "In Progress": "bg-[#E3F2FD] text-[#1565C0]",
+  "Completado": "bg-[#E8F5E9] text-[#2E7D32]",
+  "Pendiente": "bg-[#F7F6F2] text-[#6B6B6B]",
 };
 
+const CARD_ACCENTS = ["bg-brand", "bg-[#2DD4BF]", "bg-[#4A90D9]", "bg-[#1C1C1E]"];
+
 export default function ObjetivosPage() {
-  const { currentUser, activeRole } = useAuthStore();
-
-  // Ciclo activo (no cerrado) más reciente
-  const cicloActivo = MOCK_EVALUACIONES.find((e) => e.estado !== "cerrada")
-    ?? MOCK_EVALUACIONES[0];
-
-  // Objetivos del usuario actual dentro del ciclo, o todos si es TH/lider
-  let objetivos: (ObjetivoEvaluado & { usuarioId: string; cicloNombre: string })[] = [];
-
-  if (cicloActivo) {
-    const participantes =
-      activeRole === "evaluado"
-        ? cicloActivo.participantes.filter((p) => p.usuarioId === currentUser?.id)
-        : cicloActivo.participantes;
-
-    for (const p of participantes) {
-      for (const obj of p.objetivos) {
-        objetivos.push({ ...obj, usuarioId: p.usuarioId, cicloNombre: cicloActivo.nombre });
-      }
-    }
-  }
-
-  const completados = objetivos.filter((o) => o.estado === "completado").length;
-  const promedioAuto =
-    objetivos.filter((o) => o.autocalificacion).reduce((acc, o) => acc + (o.autocalificacion ?? 0), 0) /
-    (objetivos.filter((o) => o.autocalificacion).length || 1);
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Objetivos del cargo</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {cicloActivo?.nombre ?? "Sin ciclo activo"} · {objetivos.length} objetivos
-          </p>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1A1A1A] mb-0.5">Objetivos</h1>
+            <p className="text-sm text-[#6B6B6B]">Define y monitorea tus metas individuales y estratégicas</p>
+          </div>
+          <button className="flex items-center gap-1.5 px-4 py-2 bg-[#1C1C1E] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors shadow-card">
+            <Plus className="w-3.5 h-3.5" /> Nuevo Objetivo
+          </button>
         </div>
-      </div>
 
-      {/* Resumen */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="border shadow-sm">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-gray-900">{completados}/{objetivos.length}</p>
-            <p className="text-xs text-gray-500">Completados</p>
-          </CardContent>
-        </Card>
-        <Card className="border shadow-sm">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-blue-600">{promedioAuto.toFixed(1)}/5</p>
-            <p className="text-xs text-gray-500">Prom. autocalif.</p>
-          </CardContent>
-        </Card>
-        <Card className="border shadow-sm">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-gray-900">
-              {objetivos.reduce((a, o) => a + o.peso, 0)}%
-            </p>
-            <p className="text-xs text-gray-500">Peso total</p>
-          </CardContent>
-        </Card>
-      </div>
+        {/* KPI cards */}
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          {[
+            { label: "Total Objetivos", value: "24", icon: Target, accent: "" },
+            { label: "En Progreso", value: "16", icon: TrendingUp, accent: "text-brand" },
+            { label: "Completados", value: "6", icon: CheckCircle, accent: "text-[#2E7D32]" },
+            { label: "Promedio Avance", value: "72%", icon: Zap, accent: "text-[#6A1B9A]" },
+          ].map((stat, i) => (
+            <div key={i} className="card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs text-[#6B6B6B] font-medium">{stat.label}</p>
+                <stat.icon className={cn("w-4 h-4", stat.accent || "text-[#A0A0A0]")} />
+              </div>
+              <p className={cn("text-3xl font-bold", stat.accent || "text-[#1A1A1A]")}>{stat.value}</p>
+            </div>
+          ))}
+        </div>
 
-      {/* Lista */}
-      <div className="space-y-3">
-        {objetivos.map((obj) => {
-          const conf = ESTADO_CONFIG[obj.estado];
-          return (
-            <Card key={obj.id} className="border shadow-sm hover:shadow-md transition-all">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center shrink-0", conf.bg)}>
-                    <Target className={cn("h-4 w-4", conf.color)} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-semibold text-sm text-gray-900 truncate">{obj.funcion}</p>
-                      <Badge className={cn("text-xs shrink-0", conf.badge)}>{conf.label}</Badge>
-                      <Badge variant="outline" className="text-xs shrink-0">{obj.peso}%</Badge>
+        {/* Objectives list */}
+        <div className="space-y-3">
+          {OBJETIVOS.map((obj, i) => (
+            <div key={obj.id} className="card p-5 hover:shadow-card-md transition-shadow">
+              <div className="flex items-start gap-4">
+                {/* Color accent bar */}
+                <div className={cn("w-1 rounded-full flex-shrink-0 self-stretch", CARD_ACCENTS[i])} />
+
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-1">
+                    <h3 className="font-semibold text-[#1A1A1A]">{obj.titulo}</h3>
+                    <div className="flex items-center gap-2 ml-4">
+                      <span className={cn("tag", STATUS_STYLES[obj.estado])}>{obj.estado}</span>
+                      <button className="w-7 h-7 rounded-lg bg-[#F7F6F2] flex items-center justify-center text-[#A0A0A0] hover:text-[#1A1A1A]">
+                        <MoreHorizontal className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <p className="text-xs text-gray-500 mb-2 line-clamp-2">{obj.objetivoSmart}</p>
-                    {(obj.autocalificacion || obj.calificacionLider) && (
-                      <div className="flex gap-4 text-xs">
-                        {obj.autocalificacion && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-gray-400">Auto:</span>
-                            <span className="font-semibold text-blue-600">{obj.autocalificacion}/5</span>
-                          </div>
-                        )}
-                        {obj.calificacionLider && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-gray-400">Líder:</span>
-                            <span className="font-semibold text-amber-600">{obj.calificacionLider}/5</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {obj.estado === "completado" && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                    <ButtonLink
-                      href={`/objetivos/${obj.id}`}
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-blue-600"
-                    >
-                      Ver
-                    </ButtonLink>
+                  <p className="text-sm text-[#6B6B6B] mb-3">{obj.descripcion}</p>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-xs text-[#A0A0A0]">
+                      <span>Fuente: <span className="text-[#6B6B6B] font-medium">{obj.fuente}</span></span>
+                      <span>·</span>
+                      <span>{obj.fechaInicio}</span>
+                      <span>·</span>
+                      <span>Peso: {obj.ponderacion}%</span>
+                    </div>
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-28 h-1.5 bg-[#F0EFE9] rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{
+                            width: `${obj.progreso}%`,
+                            background: obj.progreso >= 100 ? "#22c55e" : obj.progreso >= 50 ? "#FF4500" : obj.progreso === 0 ? "#E8E7E2" : "#FF4500",
+                          }}
+                        />
+                      </div>
+                      <span className="text-sm font-bold text-[#1A1A1A] w-10 text-right">{obj.progreso}%</span>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        {objetivos.length === 0 && (
-          <div className="text-center py-12 text-gray-400 text-sm">
-            No hay objetivos asignados en el ciclo activo.
-          </div>
-        )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

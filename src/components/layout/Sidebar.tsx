@@ -1,99 +1,97 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAuthStore } from "@/stores/authStore";
-import { SIDEBAR_ITEMS, canAccess } from "@/lib/utils/permissions";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard, ClipboardList, Target, Award,
-  PenLine, Users, TrendingUp, BarChart2, Building2,
+  LayoutGrid, ClipboardList, Target, Award, BarChart2, FileText,
+  LogOut, Settings, Sun, Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/authStore";
+import { useState } from "react";
 
-const ICON_MAP: Record<string, React.ElementType> = {
-  LayoutDashboard, ClipboardList, Target, Award,
-  PenLine, Users, TrendingUp, BarChart2,
-};
-
-const ROLE_LABELS: Record<string, string> = {
-  admin: "Administrador",
-  th: "Talento Humano",
-  lider: "Líder",
-  evaluado: "Evaluado",
-};
-
-const ROLE_COLORS: Record<string, string> = {
-  admin: "bg-purple-500",
-  th: "bg-blue-500",
-  lider: "bg-amber-500",
-  evaluado: "bg-green-500",
-};
+const NAV_ITEMS = [
+  { href: "/dashboard",    icon: LayoutGrid,   label: "Dashboard"    },
+  { href: "/evaluaciones", icon: ClipboardList, label: "Evaluaciones" },
+  { href: "/objetivos",    icon: Target,        label: "Objetivos"    },
+  { href: "/competencias", icon: Award,         label: "Competencias" },
+  { href: "/analytics",    icon: BarChart2,     label: "Analytics"    },
+  { href: "/formulario",   icon: FileText,      label: "Formulario"   },
+];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { currentUser, activeRole } = useAuthStore();
-
-  const visibleItems = SIDEBAR_ITEMS.filter(
-    (item) => canAccess(item.permission, activeRole)
-  );
+  const logout   = useAuthStore((s) => s.logout);
+  const router   = useRouter();
+  const [dark, setDark] = useState(false);
 
   return (
-    <aside className="flex h-screen w-60 flex-col bg-sidebar text-sidebar-foreground fixed left-0 top-0 z-40">
+    <aside className="fixed left-3 top-1/2 -translate-y-1/2 h-auto w-12 bg-[#1C1C1E] flex flex-col items-center py-4 z-50 rounded-[22px] shadow-2xl">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary">
-          <Building2 className="h-5 w-5 text-white" />
-        </div>
-        <div>
-          <p className="font-bold text-sm text-white tracking-wide">INMOV</p>
-          <p className="text-xs text-sidebar-foreground/60">Evaluación Desempeño</p>
-        </div>
+      <div className="mb-4 w-8 h-8 flex items-center justify-center flex-shrink-0">
+        <Image src="/logo-sidebar.png" alt="INMOV" width={20} height={20} className="object-contain" />
       </div>
 
-      {/* Nav items */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {visibleItems.map((item) => {
-          const Icon = ICON_MAP[item.icon];
-          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+      {/* Nav principal */}
+      <nav className="flex flex-col items-center gap-0.5 w-full px-1.5 flex-1">
+        {NAV_ITEMS.map((item) => {
+          const active = pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
+              title={item.label}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-sidebar-accent text-white"
-                  : "text-sidebar-foreground/75 hover:bg-sidebar-accent/50 hover:text-white"
+                "w-full flex items-center justify-center h-9 rounded-[14px] transition-all duration-200",
+                active
+                  ? "bg-white text-[#1C1C1E]"
+                  : "text-[#6B6B6B] hover:text-white hover:bg-white/10"
               )}
             >
-              {Icon && <Icon className="h-4.5 w-4.5 shrink-0" />}
-              {item.label}
+              <item.icon className="w-4 h-4" strokeWidth={active ? 2.2 : 1.8} />
             </Link>
           );
         })}
       </nav>
 
-      {/* User info */}
-      {currentUser && (
-        <div className="border-t border-sidebar-border p-4">
-          <div className="flex items-center gap-3">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.nombre}
-              className="h-9 w-9 rounded-full bg-sidebar-accent"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-white truncate">{currentUser.nombre}</p>
-              <p className="text-xs text-sidebar-foreground/50 truncate">{currentUser.cargo}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className={cn("h-2 w-2 rounded-full", activeRole ? ROLE_COLORS[activeRole] : "bg-gray-400")} />
-                <span className="text-xs text-sidebar-foreground/60">
-                  {activeRole ? ROLE_LABELS[activeRole] : "—"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Bottom: separador + configuración + tema + logout */}
+      <div className="flex flex-col items-center px-1.5 w-full gap-0.5 mt-2">
+        <div className="w-6 h-px bg-white/10 mb-1" />
+
+        {/* Configuración */}
+        <Link
+          href="/configuracion"
+          title="Configuración"
+          className={cn(
+            "w-full flex items-center justify-center h-9 rounded-[14px] transition-all duration-200",
+            pathname.startsWith("/configuracion")
+              ? "bg-white text-[#1C1C1E]"
+              : "text-[#6B6B6B] hover:text-white hover:bg-white/10"
+          )}
+        >
+          <Settings className="w-4 h-4" strokeWidth={1.8} />
+        </Link>
+
+        {/* Toggle tema */}
+        <button
+          title={dark ? "Modo claro" : "Modo oscuro"}
+          onClick={() => setDark((d) => !d)}
+          className="w-full flex items-center justify-center h-9 rounded-[14px] text-[#6B6B6B] hover:text-white hover:bg-white/10 transition-all duration-200"
+        >
+          {dark
+            ? <Sun  className="w-4 h-4" strokeWidth={1.8} />
+            : <Moon className="w-4 h-4" strokeWidth={1.8} />}
+        </button>
+
+        {/* Logout */}
+        <button
+          onClick={() => { logout(); router.push("/login"); }}
+          title="Cerrar sesión"
+          className="w-full flex items-center justify-center h-9 rounded-[14px] text-[#6B6B6B] hover:text-white hover:bg-white/10 transition-all duration-200"
+        >
+          <LogOut className="w-4 h-4" strokeWidth={1.8} />
+        </button>
+      </div>
     </aside>
   );
 }

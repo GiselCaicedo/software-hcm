@@ -1,0 +1,48 @@
+import type { Objetivo } from "@/types";
+
+export const OBJETIVOS: Objetivo[] = [
+  {
+    id: "o1",
+    titulo: "Incrementar ventas B2B en 25%",
+    descripcion: "Aumentar el canal B2B con nuevas alianzas",
+    fuente: "Gerencia",
+    fechaInicio: "Q1 2026",
+    fechaFin: "Peso: 35%",
+    ponderacion: 35,
+    progreso: 78,
+    estado: "In Progress",
+  },
+  {
+    id: "o2",
+    titulo: "Implementar sistema de onboarding digital",
+    descripcion: "Digitalizar el proceso de incorporación de empleados",
+    fuente: "Tecnología",
+    fechaInicio: "Q1 2026",
+    fechaFin: "Peso: 25%",
+    ponderacion: 25,
+    progreso: 100,
+    estado: "Completado",
+  },
+  {
+    id: "o3",
+    titulo: "Reducir rotación de talento al 8%",
+    descripcion: "Implementar programas de retención y bienestar",
+    fuente: "HR People",
+    fechaInicio: "Q1 2026",
+    fechaFin: "Peso: 20%",
+    ponderacion: 20,
+    progreso: 45,
+    estado: "In Progress",
+  },
+  {
+    id: "o4",
+    titulo: "Lanzar programa de mentoría interna",
+    descripcion: "Crear sistema de mentorías entre empleados senior y junior",
+    fuente: "Barak",
+    fechaInicio: "Q1 2026",
+    fechaFin: "Peso: 20+",
+    ponderacion: 20,
+    progreso: 0,
+    estado: "Pendiente",
+  },
+];

@@ -1,141 +1,119 @@
 "use client";
-import {
-  MOCK_KPIS, MOCK_DISTRIBUCION_CALIFICACIONES,
-  MOCK_COMPETENCIAS_RADAR, MOCK_AVANCE_POR_AREA
-} from "@/lib/mock-data/analytics";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ButtonLink } from "@/components/ui/button-link";
-import Link from "next/link";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend,
-  PieChart, Pie, Cell,
-} from "recharts";
-import { Users, CheckCircle2, Clock, TrendingUp, Grid3X3, FileDown } from "lucide-react";
+import { ANALYTICS } from "@/lib/mock-data/analytics";
+import { Download, Filter, MoreHorizontal, ArrowUpRight, TrendingUp } from "lucide-react";
+
+const BAR_COLORS = [
+  "bg-gradient-to-t from-[#1C1C1E] to-[#444]",
+  "bg-gradient-to-t from-brand to-[#FF8C55]",
+  "bg-gradient-to-t from-[#F5C518] to-[#FFE08A]",
+  "bg-gradient-to-t from-[#6B21A8] to-brand",
+  "bg-gradient-to-t from-[#F5C518] to-[#FF8C55]",
+];
 
 export default function AnalyticsPage() {
-  const kpis = [
-    { label: "Total evaluados", value: MOCK_KPIS.totalEvaluados, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Completados", value: MOCK_KPIS.completados, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
-    { label: "En proceso", value: MOCK_KPIS.enProceso, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Calif. promedio", value: MOCK_KPIS.cumplimientoPromedio.toFixed(1), icon: TrendingUp, color: "text-purple-600", bg: "bg-purple-50" },
-  ];
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics de Desempeño</h1>
-          <p className="text-sm text-gray-500 mt-1">Ciclo 2025 · Tiempo real</p>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1A1A1A] mb-0.5">Analytics y Reportes</h1>
+            <p className="text-sm text-[#6B6B6B]">Métricas de desempeño y tendencias según cargos y áreas</p>
+          </div>
+          <div className="flex gap-2">
+            <button className="flex items-center gap-1.5 px-4 py-2 bg-white border border-[#E8E7E2] text-[#6B6B6B] rounded-xl text-sm font-medium hover:bg-[#F7F6F2] shadow-card">
+              <Download className="w-3.5 h-3.5" /> Exportar PDF
+            </button>
+            <button className="flex items-center gap-1.5 px-4 py-2 bg-[#1C1C1E] text-white rounded-xl text-sm font-medium hover:bg-black shadow-card">
+              <Filter className="w-3.5 h-3.5" /> Filtros
+            </button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <ButtonLink href="/analytics/nine-box" variant="outline" size="sm" className="gap-2"><Grid3X3 className="h-4 w-4" />9-Box Grid</ButtonLink>
-          <ButtonLink href="/analytics/reportes" variant="outline" size="sm" className="gap-2"><FileDown className="h-4 w-4" />Reportes</ButtonLink>
+
+        {/* KPI row */}
+        <div className="grid grid-cols-3 gap-4 mb-5">
+          {[
+            { label: "Promedio General", value: `${ANALYTICS.promedioGeneral}`, sub: "Sobre 5 puntos", badge: "+9.8%", badgeColor: "bg-[#E8F5E9] text-[#2E7D32]" },
+            { label: "Tasa de Completitud", value: `${ANALYTICS.tasaCompletitud}%`, sub: "Evaluaciones completadas", badge: "+4.6%", badgeColor: "bg-[#E3F2FD] text-[#1565C0]" },
+            { label: "Objetivos Logrados", value: `${ANALYTICS.objetivosLogrados}%`, sub: "Del objetivo en ciclo", badge: "Sin cambio", badgeColor: "bg-[#F7F6F2] text-[#6B6B6B]" },
+          ].map((kpi, i) => (
+            <div key={i} className="card p-5">
+              <div className="flex items-start justify-between mb-3">
+                <p className="text-xs font-medium text-[#6B6B6B]">{kpi.label}</p>
+                <span className={`tag ${kpi.badgeColor}`}>{kpi.badge}</span>
+              </div>
+              <p className="text-4xl font-black text-[#1A1A1A] mb-1">{kpi.value}</p>
+              <p className="text-xs text-[#A0A0A0]">{kpi.sub}</p>
+            </div>
+          ))}
         </div>
-      </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((kpi) => (
-          <Card key={kpi.label} className="border shadow-sm">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg ${kpi.bg} flex items-center justify-center shrink-0`}>
-                <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
+        <div className="grid grid-cols-3 gap-5">
+          {/* Bar chart */}
+          <div className="col-span-2 card p-5">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-sm font-semibold text-[#1A1A1A]">Desempeño por Departamento</h3>
+              <div className="flex gap-1">
+                <button className="w-7 h-7 rounded-lg bg-[#F7F6F2] flex items-center justify-center text-[#6B6B6B]"><MoreHorizontal className="w-3.5 h-3.5" /></button>
+                <button className="w-7 h-7 rounded-lg bg-[#F7F6F2] flex items-center justify-center text-[#6B6B6B]"><ArrowUpRight className="w-3.5 h-3.5" /></button>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{kpi.value}</p>
-                <p className="text-xs text-gray-500">{kpi.label}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Distribución calificaciones */}
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Distribución de Calificaciones</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={MOCK_DISTRIBUCION_CALIFICACIONES} margin={{ left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="rango" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Bar dataKey="cantidad" radius={[4, 4, 0, 0]}>
-                  {MOCK_DISTRIBUCION_CALIFICACIONES.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Radar competencias */}
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Competencias — Promedio vs Esperado</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
-              <RadarChart data={MOCK_COMPETENCIAS_RADAR}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="competencia" tick={{ fontSize: 10 }} />
-                <Radar name="Promedio" dataKey="promedio" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
-                <Radar name="Esperado" dataKey="esperado" stroke="#d1d5db" fill="#d1d5db" fillOpacity={0.1} strokeDasharray="4 4" />
-                <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-                <Tooltip />
-              </RadarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Avance por área */}
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Avance por Área</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={MOCK_AVANCE_POR_AREA} layout="vertical" margin={{ left: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                <XAxis type="number" domain={[0, 15]} tick={{ fontSize: 11 }} />
-                <YAxis type="category" dataKey="area" tick={{ fontSize: 11 }} width={80} />
-                <Tooltip />
-                <Bar dataKey="completados" name="Completados" fill="#22c55e" radius={[0, 4, 4, 0]} />
-                <Bar dataKey="total" name="Total" fill="#e5e7eb" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Quick links */}
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-2"><CardTitle className="text-base">Acciones rápidas</CardTitle></CardHeader>
-          <CardContent className="space-y-2">
-            {[
-              { label: "Ver 9-Box Grid", href: "/analytics/nine-box", desc: "Desempeño vs. Potencial del equipo", icon: Grid3X3 },
-              { label: "Exportar reportes", href: "/analytics/reportes", desc: "PDF individuales y grupales con firma", icon: FileDown },
-              { label: "Cumplimiento Decreto 1373", href: "/analytics/cumplimiento", desc: "Workflow de bajo desempeño", icon: CheckCircle2 },
-            ].map((item) => (
-              <Link key={item.href} href={item.href}>
-                <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                  <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                    <item.icon className="h-4.5 w-4.5 text-blue-600" />
+            </div>
+            <div className="flex items-end gap-5 h-44 px-2">
+              {ANALYTICS.departamentos.map((dep, i) => {
+                const heightPct = (dep.promedio / 5) * 100;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                    <span className="text-xs font-bold text-[#1A1A1A]">{dep.promedio}</span>
+                    <div className="w-full relative" style={{ height: "120px" }}>
+                      <div
+                        className={`absolute bottom-0 w-full rounded-t-xl ${BAR_COLORS[i]}`}
+                        style={{ height: `${heightPct}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-[#6B6B6B] text-center leading-tight">{dep.nombre}</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-800 group-hover:text-blue-600">{item.label}</p>
-                    <p className="text-xs text-gray-400">{item.desc}</p>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Top performers */}
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-[#1A1A1A]">Top Performers</h3>
+              <button className="w-7 h-7 rounded-lg bg-[#F7F6F2] flex items-center justify-center text-[#6B6B6B]">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              {ANALYTICS.topPerformers.map((performer, i) => (
+                <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#F7F6F2] transition-colors cursor-pointer">
+                  <span className="text-xs text-[#A0A0A0] w-4 font-bold">{i + 1}</span>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-300 to-pink-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {performer.nombre.charAt(0)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-[#1A1A1A] truncate">{performer.nombre}</p>
+                    <p className="text-xs text-[#A0A0A0]">{performer.cargo}</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-bold text-[#1A1A1A]">{performer.promedio}</span>
+                    <TrendingUp className="w-3 h-3 text-[#2E7D32]" />
                   </div>
                 </div>
-              </Link>
-            ))}
-          </CardContent>
-        </Card>
+              ))}
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-[#E8E7E2]">
+              <div className="flex justify-between text-xs mb-1.5">
+                <span className="text-[#6B6B6B]">Promedio del ciclo</span>
+                <span className="font-bold text-[#1A1A1A]">{ANALYTICS.promedioGeneral} / 5.0</span>
+              </div>
+              <div className="h-1.5 bg-[#F0EFE9] rounded-full overflow-hidden">
+                <div className="h-full bg-brand rounded-full" style={{ width: `${(ANALYTICS.promedioGeneral / 5) * 100}%` }} />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

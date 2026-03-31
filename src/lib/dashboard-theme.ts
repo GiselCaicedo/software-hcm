@@ -10,18 +10,12 @@ export type DashboardTheme = {
 
 export const DASHBOARD_THEMES: Record<string, DashboardTheme> = {
   pastelBalanced: {
-    rootBg: "#F4EFE7",
-    overlayGradient:
-      // 🔁 invertimos posiciones
-      "radial-gradient(circle at top right, rgba(255, 128, 64, 0.19), transparent 36%), \
-       radial-gradient(circle at top left, rgba(181, 102, 214, 0.15), transparent 30%), \
-       radial-gradient(circle at bottom center, rgba(255, 223, 106, 0.15), transparent 32%)",
-
+    rootBg: "#FAFAFA",
+    overlayGradient: "none",
     blobs: {
-      // 🔁 también invertimos blobs
-      topLeft: "bg-[#C792EA]/26",   // morado ahora a la izquierda
-      topRight: "bg-[#FFA070]/30",  // naranja ahora a la derecha ✅
-      bottom: "bg-[#FFE07A]/28",
+      topLeft: "bg-[#C792EA]/20",
+      topRight: "bg-[#FFA070]/22",
+      bottom: "bg-[#FFE07A]/20",
     },
   },
 
@@ -73,6 +67,20 @@ export const DASHBOARD_THEMES: Record<string, DashboardTheme> = {
       topLeft: "bg-[#C68BE8]/26",
       topRight: "bg-[#FF9966]/32",
       bottom: "bg-[#FFD86B]/28",
+    },
+  },
+
+  // Fondo blanco con matices verdes/teal muy suaves — estilo referencia
+  whiteGreen: {
+    rootBg: "#F7F9F7",
+    overlayGradient:
+      "radial-gradient(circle at top right, rgba(134, 197, 156, 0.13), transparent 40%), \
+       radial-gradient(circle at top left, rgba(100, 185, 170, 0.10), transparent 35%), \
+       radial-gradient(circle at bottom center, rgba(160, 210, 180, 0.08), transparent 40%)",
+    blobs: {
+      topLeft: "bg-[#A8D8C0]/14",
+      topRight: "bg-[#7EC8B4]/12",
+      bottom: "bg-[#B8DFC8]/10",
     },
   },
 };

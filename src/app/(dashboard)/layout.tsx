@@ -23,12 +23,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: theme.rootBg }}>
-      {/* Background theme accents */}
+      {/* Background — blobs difuminados abajo-derecha como puntos de color */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute inset-0" style={{ background: theme.overlayGradient }} />
-        <div className={cn("absolute -top-32 -left-16 w-[420px] h-[420px] rounded-full blur-[110px]", theme.blobs.topLeft)} />
-        <div className={cn("absolute top-1/4 right-[-120px] w-[320px] h-[320px] rounded-full blur-[120px]", theme.blobs.topRight)} />
-        <div className={cn("absolute bottom-[-120px] left-1/3 w-[360px] h-[360px] rounded-full blur-[120px]", theme.blobs.bottom)} />
+        {/* Blob principal — naranja/melocotón, abajo a la derecha */}
+        <div className={cn("absolute bottom-[-80px] right-[-80px] w-[420px] h-[420px] rounded-full blur-[130px]", theme.blobs.topRight)} />
+        {/* Blob secundario — morado, más abajo y más al centro-derecha */}
+        <div className={cn("absolute bottom-[-40px] right-[20%] w-[300px] h-[300px] rounded-full blur-[110px]", theme.blobs.topLeft)} />
+        {/* Blob terciario — amarillo suave, esquina inferior derecha profunda */}
+        <div className={cn("absolute bottom-[-60px] right-[5%] w-[260px] h-[260px] rounded-full blur-[100px]", theme.blobs.bottom)} />
       </div>
 
       {/* TopBar — ancho completo */}
@@ -41,7 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Sidebar />
         <main
           className={cn(
-            "flex-1 ml-20 min-h-0 flex flex-col transition-[margin] duration-300",
+            "flex-1 ml-20 min-h-0 flex flex-col transition-[margin] duration-300 max-md:ml-0 max-md:mb-16",
             calendarOpen ? "mr-[340px]" : "mr-0"
           )}
         >

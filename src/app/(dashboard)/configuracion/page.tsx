@@ -1,9 +1,27 @@
 "use client";
-import { CICLOS } from "@/lib/mock-data/evaluaciones";
+import { CICLOS_MOCK } from "@/mock/evaluaciones";
 import { Plus, Edit2, MoreHorizontal, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ciclo = CICLOS[0];
+const cicloRaw = CICLOS_MOCK.find((c) => c.estado === "activo") ?? CICLOS_MOCK[0];
+// Adaptar al formato esperado por esta vista
+const ciclo = {
+  nombre: cicloRaw.nombre,
+  fechaInicio: `${cicloRaw.fechaInicio} → ${cicloRaw.fechaLimite}`,
+  totalEmpleados: cicloRaw.totalEvaluaciones,
+  calificadas: cicloRaw.completadas,
+  pendientes: cicloRaw.totalEvaluaciones - cicloRaw.completadas,
+  sinEvaluar: cicloRaw.totalEvaluaciones - cicloRaw.firmadas,
+  escala: `${cicloRaw.tipo}°`,
+  pesoObjetivos: cicloRaw.pesoObjetivos,
+  pesoCompetencias: cicloRaw.pesoCompetencias,
+  fases: [
+    { nombre: "Autoevaluación colaborador", fechaInicio: cicloRaw.fechaInicio, fechaFin: cicloRaw.fechaLimite, estado: "completada" as const },
+    { nombre: "Evaluación del líder", fechaInicio: cicloRaw.fechaInicio, fechaFin: cicloRaw.fechaLimite, estado: "activa" as const },
+    { nombre: "Evaluación del par", fechaInicio: cicloRaw.fechaInicio, fechaFin: cicloRaw.fechaLimite, estado: "activa" as const },
+    { nombre: "Cierre y firmas", fechaInicio: cicloRaw.fechaLimite, fechaFin: cicloRaw.fechaCierre, estado: "pendiente" as const },
+  ],
+};
 
 export default function ConfiguracionPage() {
   return (
@@ -24,7 +42,6 @@ export default function ConfiguracionPage() {
           <div className="flex items-start justify-between mb-5">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-[#8B5CF6] flex items-center justify-center">
-                <span className="text-white text-xl">🔥</span>
               </div>
               <div>
                 <p className="font-bold text-[#1A1A1A] text-lg">{ciclo.nombre}</p>
@@ -113,8 +130,8 @@ export default function ConfiguracionPage() {
                     </p>
                     <span className={cn("tag text-xs",
                       fase.estado === "completada" ? "bg-[#E8F5E9] text-[#2E7D32]" :
-                      fase.estado === "activa" ? "bg-white/20 text-white" :
-                      "bg-[#E8E7E2] text-[#6B6B6B]"
+                        fase.estado === "activa" ? "bg-white/20 text-white" :
+                          "bg-[#E8E7E2] text-[#6B6B6B]"
                     )}>
                       {fase.estado === "completada" ? "Completada" : fase.estado === "activa" ? "En Curso" : "Pendiente"}
                     </span>

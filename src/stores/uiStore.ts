@@ -7,6 +7,6 @@ interface UIState {
 }
 
 export const useUIStore = create<UIState>()((set) => ({
-  calendarOpen: true,
+  calendarOpen: false,
   toggleCalendar: () => set((s) => ({ calendarOpen: !s.calendarOpen })),
 }));

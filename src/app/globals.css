@@ -20,7 +20,7 @@
   * { box-sizing: border-box; }
 
   body {
-    background: linear-gradient(135deg, #e8e4f0 0%, #f0eef8 50%, #e4eef8 100%);
+    background: #FAFAFA;
     color: var(--text-primary);
     font-family: 'DM Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
